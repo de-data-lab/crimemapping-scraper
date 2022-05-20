@@ -32,12 +32,9 @@ display_report = driver.find_element(By.ID, 'displayReports')
 display_report.click()
 
 # Wait for the report window to load
-try:
-    element = WebDriverWait(driver, 10).until(
+WebDriverWait(driver, 10).until(
         EC.visibility_of_element_located((By.XPATH, '//*[@id="CrimeIncidents"]/div[2]/table/tbody/tr[1]/td[3]'))
     )
-finally:
-    pass
 
 # Get current page's metadata
 cur_page_metadata = PageMetadata(driver)
