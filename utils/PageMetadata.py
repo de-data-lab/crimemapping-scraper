@@ -32,5 +32,5 @@ class PageMetadata:
     def update_metadata(self):
         self.items_text = get_items_text(self.driver)
         self.max_rendered = get_max_rendered(self.items_text)
-        self.min_rendered = get_min_rendered(self.min_rendered)
+        self.min_rendered = get_min_rendered(self.items_text)
         self.total_items = get_total_items(self.items_text)
