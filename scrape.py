@@ -19,8 +19,8 @@ driver = webdriver.Chrome(options=options)
 # Set the intervals of scraping
 scraping_interval = relativedelta(weeks=1)
 
-# Debugging
-debug = True
+# Save screenshots for debugging
+save_screenshots = False
 
 # Go to the Wilmington Police Area: 522
 driver.get("https://www.crimemapping.com/map/agency/522")
@@ -38,14 +38,18 @@ to_date = oldest_date + scraping_interval
 output_df = pd.DataFrame()
 
 while (latest_date >= to_date):
+    # Get a string for the current daterange 
+    current_daterange = from_date.strftime("%Y-%m-%d") + " - " + to_date.strftime("%Y-%m-%d")
+
+    # Print to console
     print('=================')
-    print('Date Range: ' + from_date.strftime("%Y-%m-%d") + " - " + to_date.strftime("%Y-%m-%d"))
+    print('Date Range: ' + current_daterange)
 
     # Change the date range ----------------------------------------------------------------------------------------
     cur_dates = change_daterange(driver, from_date=from_date, to_date=to_date)
 
     # If debug, save screenshot
-    if debug: driver.save_screenshot("screenshots/" + from_date.strftime("%Y-%m-%d") + " - " + to_date.strftime("%Y-%m-%d") + ".png")
+    if save_screenshots: driver.save_screenshot("screenshots/" + current_daterange + ".png")
 
     # Open the Report view ----------------------------------------------------------------------------------------
     # Find and click the display report button
@@ -74,7 +78,7 @@ while (latest_date >= to_date):
         print("Processing page: " + str(current_page))
 
         # Get screenshot for debugging
-        if debug: driver.save_screenshot("screenshots/" + 'page-' + str(current_page) + '.png')
+        if save_screenshots: driver.save_screenshot("screenshots/" + current_daterange + " - " + 'page-' + str(current_page) + '.png')
 
         # Get current page's metadata
         cur_page_metadata = PageMetadata(driver)
