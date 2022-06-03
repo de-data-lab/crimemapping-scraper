@@ -53,9 +53,9 @@ def get_initial_dates(driver):
 
 
 def change_daterange(driver, by_months=1, from_date=None, to_date=None):
+    # Note: Without this line, the scraping fails. Not sure why.
+    driver.get_screenshot_as_png()
 
-    driver.save_screenshot("screenshots/start_change_daterange.png")
-    
     # Elements to look for
     apply_button_xpath = '//*[@id="customDate"]/a'
     custom_time_range_xpath = '//*[@id="whenPanel"]/ul/li[9]/div'
@@ -80,8 +80,6 @@ def change_daterange(driver, by_months=1, from_date=None, to_date=None):
     except Exception as e:
         print("Error occurred when trying to find the 'Custom Time Range Text'")
         driver.save_screenshot('screenshots/log.png')
-
-    driver.save_screenshot("screenshots/when_button_clicked.png")
 
     # Check the custom time link to be clickable
     try: 
