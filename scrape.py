@@ -36,11 +36,11 @@ WebDriverWait(driver, 10).until(
         EC.visibility_of_element_located((By.XPATH, '//*[@id="CrimeIncidents"]/div[2]/table/tbody/tr[1]/td[3]'))
     )
 
-# Get current page's metadata
-cur_page_metadata = PageMetadata(driver)
-cur_page_metadata.update_metadata()
-print("max rendered: " + str(cur_page_metadata.max_rendered) )
-print("total items: " + str(cur_page_metadata.total_items) )
+    # Get current page's metadata
+    cur_page_metadata = PageMetadata(driver)
+    cur_page_metadata.update_metadata()
+    print("Processing items: " + str(cur_page_metadata.min_rendered) + "/" + str(cur_page_metadata.max_rendered))
+    print("Total items in this report: " + str(cur_page_metadata.total_items) )
 
 # Container pd data frame to collect results
 output_df = pd.DataFrame()
