@@ -1,3 +1,6 @@
+# Avoid pushing scraped dataset
+output.csv
+
 # Mac
 .DS_Store
 
