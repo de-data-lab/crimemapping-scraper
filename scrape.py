@@ -5,16 +5,37 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from dateutil.relativedelta import relativedelta
-# Local modules
+from datetime import datetime
+from dotenv import load_dotenv
+import os
+import uuid
+import json
+import azure.cosmos.cosmos_client as cosmos_client
+# Impoort local modules
 from utils.PageMetadata import PageMetadata
 from utils.change_daterange import change_daterange, get_initial_dates
 
+# Load environment variables from .env
+load_dotenv()
+HOST = os.getenv("ACCOUNT_HOST")
+MASTER_KEY = os.getenv("ACCOUNT_KEY")
+DATABASE_ID = os.getenv("COSMOS_DATABASE")
+CONTAINER_ID = os.getenv("COSMOS_CONTAINER")
+
+# Initialize Cosmos Client
+client = cosmos_client.CosmosClient(HOST, {'masterKey': MASTER_KEY})
+# A dump container for hosting all scraped files (duplicates possible)
+db = client.get_database_client(DATABASE_ID)
+dump_container = db.get_container_client(CONTAINER_ID)
 
 # Selenium options 
 options = Options()
 options.headless = True
 options.add_argument("--window-size=1920,1200")
 driver = webdriver.Chrome(options=options)
+
+# Get a timestamp for this scraping attempt
+current_time = str(datetime.now())
 
 # Set the intervals of scraping
 scraping_interval = relativedelta(weeks=1)
@@ -98,8 +119,21 @@ while (latest_date >= to_date):
         df.columns = ['map_it', 'type_icon', 'description', 'incident_number', 'location', 'agency', 'date']
         # Only select columns of interest, and sort
         df = df[['date', 'agency', 'location', 'description']]
+        # Add a timestamp for the current scraping attempt
+        df['scraped_at'] = current_time
+        # Generate uuid for all the cases
+        df['id'] = [str(uuid.uuid4()) for _ in range(len(df.index))]
         # Add to the output dataframe
         output_df = pd.concat([output_df, df])
+
+        # Upload data to Azure
+        collection_link = 'dbs/' + os.getenv("COSMOS_DATABASE") + '/colls/' + os.getenv("COSMOS_CONTAINER")
+        # Iterate to write rows of the pandas df as items 
+        for i in range(len(df.index)):
+            # Create a JSON object for the current row
+            cur_row_json = df.iloc[i].to_json()
+            # Insert the item to the collection
+            insert_data = dump_container.upsert_item(json.loads(cur_row_json))
 
         # Get the next button and click
         next_button = driver.find_element(By.XPATH, '//*[@id="CrimeIncidents"]/div[3]/a[3]')
