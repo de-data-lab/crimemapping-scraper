@@ -94,6 +94,11 @@ while (latest_date >= to_date):
 
         # Convert the HTML table to a pandas data frame
         df = pd.read_html(cur_table_HTML)[0]
+        # Set column names
+        df.columns = ['map_it', 'type_icon', 'description', 'incident_number', 'location', 'agency', 'date']
+        # Only select columns of interest, and sort
+        df = df[['date', 'agency', 'location', 'description']]
+        # Add to the output dataframe
         output_df = pd.concat([output_df, df])
 
         # Get the next button and click
